@@ -1,4 +1,4 @@
-package truthguard_backend.controller;
+/*package truthguard_backend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -135,4 +135,4 @@ public class ScamReportController {
        // return analysisRepository.findAll();
     }
 
-}
+}/*
