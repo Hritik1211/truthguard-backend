@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import truthguard_backend.entity.ScamAnalysis;
 import truthguard_backend.repository.ScamAnalysisRepository;
 
-@Service
+//@Service
 public class ScamReportService {
 
     @Autowired
