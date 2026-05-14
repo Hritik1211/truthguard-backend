@@ -1,16 +1,11 @@
 package truthguard_backend.service;
 
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
 import truthguard_backend.dto.ScamAnalysisResponse;
-import truthguard_backend.entity.ScamAnalysis;
-//import truthguard_backend.repository.ScamAnalysisRepository;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ScamAnalysisService {
@@ -24,72 +19,33 @@ public class ScamAnalysisService {
         this.chatClient = builder.build();
     }
 
-       // this.repository = repository;
-
-
     public ScamAnalysisResponse analyzeText(String text) {
 
         try {
 
-            String prompt = """
-Analyze this text for scam detection.
+            ScamAnalysisResponse response =
+                    new ScamAnalysisResponse();
 
-Return ONLY valid JSON.
+            response.setScam(true);
 
-Format:
+            response.setRisk(90);
 
-{
-  "scam": true,
-  "risk": 90,
-  "category": "Phishing",
-  "reason": [
-    "Suspicious link",
-    "Urgency language",
-    "Unknown sender"
-  ]
-}
+            response.setCategory("Phishing");
 
-Text:
-""" + text;
-
-            String response = chatClient.prompt(prompt)
-                    .call()
-                    .content();
-
-            ObjectMapper mapper = new ObjectMapper();
-
-            mapper.configure(
-                    MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES,
-                    true
+            response.setReason(
+                    List.of(
+                            "Urgency language detected",
+                            "Suspicious message"
+                    )
             );
 
-            ScamAnalysisResponse result =
-                    mapper.readValue(response, ScamAnalysisResponse.class);
-
-            // SAVE TO DATABASE
-            ScamAnalysis analysis = new ScamAnalysis();
-
-            analysis.setType("TEXT");
-
-            analysis.setContent(text);
-
-            analysis.setResult(
-                    result.isScam() ? "SCAM" : "SAFE"
-            );
-
-            analysis.setRisk(result.getRisk());
-
-            analysis.setScannedAt(LocalDateTime.now());
-
-          //  repository.save(analysis);
-
-            return result;
+            return response;
 
         } catch (Exception e) {
 
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
-
+            throw new RuntimeException(
+                    e.getMessage()
+            );
         }
     }
 }
