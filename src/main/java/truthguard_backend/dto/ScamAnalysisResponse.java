@@ -5,12 +5,12 @@ import java.util.List;
 public class ScamAnalysisResponse {
 
     private boolean scam;
-    private int risk;
-    private String category;
-    private List<String> reason;
 
-    public ScamAnalysisResponse() {
-    }
+    private int risk;
+
+    private String category;
+
+    private List<String> reason;
 
     public boolean isScam() {
         return scam;
