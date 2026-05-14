@@ -14,8 +14,8 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 
-//@RestController
-//@RequestMapping("/api")
+@RestController
+@RequestMapping("/api")
 @CrossOrigin("*")
 public class ScamReportController {
 
@@ -25,8 +25,8 @@ public class ScamReportController {
     @Autowired
     private ScamAnalysisService scamAnalysisService;
 
-   // @Autowired
-   // private ScamAnalysisRepository analysisRepository;
+   @Autowired
+   private ScamAnalysisRepository analysisRepository;
 
 
     // EMAIL SCAM DETECTION
