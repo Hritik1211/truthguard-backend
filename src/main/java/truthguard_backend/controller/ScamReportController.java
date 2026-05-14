@@ -132,7 +132,7 @@ public class ScamReportController {
     @GetMapping("/history")
     public List<ScamAnalysis> getHistory() {
 
-        return analysisRepository.findAll();
+       // return analysisRepository.findAll();
     }
 
 }
