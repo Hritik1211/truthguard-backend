@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import truthguard_backend.dto.ScamAnalysisResponse;
 import truthguard_backend.entity.ScamAnalysis;
-import truthguard_backend.repository.ScamAnalysisRepository;
+//import truthguard_backend.repository.ScamAnalysisRepository;
 
 import java.time.LocalDateTime;
 
@@ -17,17 +17,15 @@ public class ScamAnalysisService {
 
     private final ChatClient chatClient;
 
-   // private final ScamAnalysisRepository repository;
-
     public ScamAnalysisService(
-            ChatClient.Builder builder,
-            ScamAnalysisRepository repository
+            ChatClient.Builder builder
     ) {
 
         this.chatClient = builder.build();
-
-        this.repository = repository;
     }
+
+       // this.repository = repository;
+
 
     public ScamAnalysisResponse analyzeText(String text) {
 
