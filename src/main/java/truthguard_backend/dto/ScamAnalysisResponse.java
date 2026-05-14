@@ -43,4 +43,4 @@ public class ScamAnalysisResponse {
     public void setReason(List<String> reason) {
         this.reason = reason;
     }
-}
+}z
