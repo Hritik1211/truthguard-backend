@@ -54,12 +54,16 @@ public class ScamReportController {
 
         } catch (Exception e) {
 
-            e.printStackTrace();
-
             throw new RuntimeException(
-                    "Image scan failed"
+                    e.getMessage()
             );
         }
+    }
+
+    @GetMapping("/")
+    public String home() {
+
+        return "TruthGuard Backend Running";
     }
 
     @GetMapping("/history")
