@@ -5,14 +5,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import truthguard_backend.dto.ScamAnalysisResponse;
-import truthguard_backend.entity.ScamAnalysis;
-import truthguard_backend.repository.ScamAnalysisRepository;
 import truthguard_backend.service.OcrService;
 import truthguard_backend.service.ScamAnalysisService;
 
 import java.io.File;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -25,48 +21,50 @@ public class ScamReportController {
     @Autowired
     private ScamAnalysisService scamAnalysisService;
 
-    @Autowired
-    private ScamAnalysisRepository analysisRepository;
-
     @PostMapping("/scan-email")
     public ScamAnalysisResponse scanEmail(@RequestBody String text) {
-        ScamAnalysisResponse aiResult = scamAnalysisService.analyzeText(text);
-        ScamAnalysis analysis = new ScamAnalysis();
-        analysis.setType("EMAIL");
-        analysis.setContent(text);
-        analysis.setResult(aiResult.isScam() ? "SCAM" : "SAFE");
-        analysis.setRisk(aiResult.getRisk());
-        analysis.setScannedAt(LocalDateTime.now());
-        analysisRepository.save(analysis);
-        return aiResult;
+
+        return scamAnalysisService.analyzeText(text);
     }
 
     @PostMapping("/scan-image")
-    public ScamAnalysisResponse scanImage(@RequestParam("file") MultipartFile file) {
+    public ScamAnalysisResponse scanImage(
+            @RequestParam("file") MultipartFile file
+    ) {
+
         try {
+
             File convFile = File.createTempFile("upload", ".png");
+
             file.transferTo(convFile);
-            String extractedText = ocrService.extractText(convFile);
-            if (extractedText == null || extractedText.isBlank()) {
-                throw new RuntimeException("No text extracted from image");
+
+            String extractedText =
+                    ocrService.extractText(convFile);
+
+            if (extractedText == null
+                    || extractedText.isBlank()) {
+
+                throw new RuntimeException(
+                        "No text extracted from image"
+                );
             }
-            ScamAnalysisResponse aiResult = scamAnalysisService.analyzeText(extractedText);
-            ScamAnalysis analysis = new ScamAnalysis();
-            analysis.setType("IMAGE");
-            analysis.setContent(extractedText);
-            analysis.setResult(aiResult.isScam() ? "SCAM" : "SAFE");
-            analysis.setRisk(aiResult.getRisk());
-            analysis.setScannedAt(LocalDateTime.now());
-            analysisRepository.save(analysis);
-            return aiResult;
+
+            return scamAnalysisService
+                    .analyzeText(extractedText);
+
         } catch (Exception e) {
+
             e.printStackTrace();
-            throw new RuntimeException("Image scan failed");
+
+            throw new RuntimeException(
+                    "Image scan failed"
+            );
         }
     }
 
     @GetMapping("/history")
-    public List<ScamAnalysis> getHistory() {
-        return analysisRepository.findAll();
+    public String getHistory() {
+
+        return "Database disabled";
     }
 }
