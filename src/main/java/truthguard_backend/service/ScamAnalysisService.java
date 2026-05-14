@@ -17,7 +17,7 @@ public class ScamAnalysisService {
 
     private final ChatClient chatClient;
 
-    private final ScamAnalysisRepository repository;
+   // private final ScamAnalysisRepository repository;
 
     public ScamAnalysisService(
             ChatClient.Builder builder,
@@ -83,7 +83,7 @@ Text:
 
             analysis.setScannedAt(LocalDateTime.now());
 
-            repository.save(analysis);
+          //  repository.save(analysis);
 
             return result;
 
