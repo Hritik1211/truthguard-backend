@@ -51,13 +51,14 @@ Message:
 
             String requestJson = """
 {
-  "model": "llama3-70b-8192",
+  "model": "llama-3.1-8b-instant",
   "messages": [
     {
       "role": "user",
       "content": "%s"
     }
-  ]
+  ],
+  "temperature": 0.3
 }
 """.formatted(safePrompt);
 
