@@ -28,36 +28,38 @@ public class ScamAnalysisService {
         try {
 
             String prompt = """
-                    Analyze this message for scam detection.
-                    
-                    Return ONLY valid JSON:
-                    
-                    {
-                      "scam": true,
-                      "risk": 90,
-                      "category": "Phishing",
-                      "reason": [
-                        "Urgency language",
-                        "Suspicious links"
-                      ]
-                    }
-                    
-                    Message:
-                    """ + text;
+Analyze this message for scam detection.
+
+Return ONLY valid JSON:
+
+{
+  "scam": true,
+  "risk": 90,
+  "category": "Phishing",
+  "reason": [
+    "Urgency language",
+    "Suspicious links"
+  ]
+}
+
+Message:
+""" + text;
+
+            String safePrompt = prompt
+                    .replace("\"", "\\\"")
+                    .replace("\n", "\\n");
 
             String requestJson = """
-                    {
-                      "model": "llama3-70b-8192",
-                      "messages": [
-                        {
-                          "role": "user",
-                          "content": "%s"
-                        }
-                      ]
-                    }
-                    """.formatted(
-                    prompt.replace("\"", "\\\"")
-            );
+{
+  "model": "llama3-70b-8192",
+  "messages": [
+    {
+      "role": "user",
+      "content": "%s"
+    }
+  ]
+}
+""".formatted(safePrompt);
 
             RequestBody body = RequestBody.create(
                     requestJson,
@@ -94,8 +96,7 @@ public class ScamAnalysisService {
             if (root.has("error")) {
 
                 throw new RuntimeException(
-                        root.get("error")
-                                .toString()
+                        root.get("error").toString()
                 );
             }
 
