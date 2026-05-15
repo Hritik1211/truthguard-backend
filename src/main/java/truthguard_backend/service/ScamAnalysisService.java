@@ -30,7 +30,7 @@ public class ScamAnalysisService {
             String prompt = """
 Analyze this message for scam detection.
 
-Return ONLY valid JSON:
+Return ONLY valid JSON in this format:
 
 {
   "scam": true,
@@ -58,7 +58,7 @@ Message:
       "content": "%s"
     }
   ],
-  "temperature": 0.3
+  "temperature": 0.2
 }
 """.formatted(safePrompt);
 
@@ -108,10 +108,15 @@ Message:
                     .get("content")
                     .asText();
 
-            aiText = aiText
-                    .replace("```json", "")
-                    .replace("```", "")
-                    .trim();
+            System.out.println(aiText);
+
+            int start = aiText.indexOf("{");
+            int end = aiText.lastIndexOf("}");
+
+            if (start != -1 && end != -1) {
+
+                aiText = aiText.substring(start, end + 1);
+            }
 
             return mapper.readValue(
                     aiText,
