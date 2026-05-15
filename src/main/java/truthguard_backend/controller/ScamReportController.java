@@ -12,7 +12,9 @@ import java.io.File;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin("*")
+@CrossOrigin(origins = {
+        "https://truthguard-ai-bay.vercel.app"
+})
 public class ScamReportController {
 
     @Autowired
