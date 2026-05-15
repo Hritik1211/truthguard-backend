@@ -30,7 +30,7 @@ public class ScamAnalysisService {
             String prompt = """
 Analyze this message for scam detection.
 
-Return ONLY valid JSON in this format:
+Return ONLY valid JSON:
 
 {
   "scam": true,
@@ -83,11 +83,21 @@ Message:
             String responseBody =
                     response.body().string();
 
+            System.out.println(responseBody);
+
             ObjectMapper mapper =
                     new ObjectMapper();
 
             JsonNode root =
                     mapper.readTree(responseBody);
+
+            if (root.has("error")) {
+
+                throw new RuntimeException(
+                        root.get("error")
+                                .toString()
+                );
+            }
 
             String aiText = root
                     .get("choices")
@@ -95,6 +105,11 @@ Message:
                     .get("message")
                     .get("content")
                     .asText();
+
+            aiText = aiText
+                    .replace("```json", "")
+                    .replace("```", "")
+                    .trim();
 
             return mapper.readValue(
                     aiText,
@@ -110,4 +125,3 @@ Message:
             );
         }
     }
-}
