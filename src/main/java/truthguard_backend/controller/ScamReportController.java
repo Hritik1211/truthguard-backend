@@ -5,11 +5,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import truthguard_backend.dto.ScamAnalysisResponse;
-import truthguard_backend.service.OcrService;
 import truthguard_backend.service.ScamAnalysisService;
 
 import java.io.File;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -17,64 +15,31 @@ import java.util.List;
 public class ScamReportController {
 
     @Autowired
-    private OcrService ocrService;
-
-    @Autowired
     private ScamAnalysisService scamAnalysisService;
 
-    // EMAIL SCANNER
+    // EMAIL SCAN
     @PostMapping("/scan-email")
     public ScamAnalysisResponse scanEmail(
             @RequestBody String text
     ) {
 
-        try {
+        System.out.println("EMAIL SCAN HIT");
 
-            return scamAnalysisService
-                    .analyzeText(text);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-            return new ScamAnalysisResponse(
-                    true,
-                    100,
-                    "Email Scan Error",
-                    List.of(
-                            "Failed to analyze email"
-                    )
-            );
-        }
+        return scamAnalysisService.analyzeText(text);
     }
 
-    // URL SCANNER
+    // URL SCAN
     @PostMapping("/scan-url")
     public ScamAnalysisResponse scanUrl(
             @RequestBody String url
     ) {
 
-        try {
+        System.out.println("URL SCAN HIT");
 
-            return scamAnalysisService
-                    .analyzeText(url);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-            return new ScamAnalysisResponse(
-                    true,
-                    100,
-                    "URL Scan Error",
-                    List.of(
-                            "Failed to analyze URL"
-                    )
-            );
-        }
+        return scamAnalysisService.analyzeText(url);
     }
 
-    // IMAGE SCANNER
+    // IMAGE SCAN
     @PostMapping("/scan-image")
     public ScamAnalysisResponse scanImage(
             @RequestParam("file") MultipartFile file
@@ -82,43 +47,19 @@ public class ScamReportController {
 
         try {
 
+            System.out.println("IMAGE SCAN HIT");
+
             File convFile =
-                    File.createTempFile(
-                            "upload",
-                            ".png"
-                    );
+                    File.createTempFile("upload", ".png");
 
             file.transferTo(convFile);
 
+            // TEMPORARY MOCK TEXT
             String extractedText =
-                    "Fake PayPal login detected. Urgent verification required.";
+                    "Urgent PayPal verification required. Click suspicious link now.";
 
-            System.out.println(
-                    "OCR TEXT: " + extractedText
-            );
-
-            if (
-                    extractedText == null ||
-                            extractedText.isBlank()
-            ) {
-
-                return new ScamAnalysisResponse(
-                        true,
-                        90,
-                        "No Text Found",
-                        List.of(
-                                "Could not detect readable text in image"
-                        )
-                );
-            }
-
-            ScamAnalysisResponse result =
-                    scamAnalysisService
-                            .analyzeText(extractedText);
-
-            convFile.delete();
-
-            return result;
+            return scamAnalysisService
+                    .analyzeText(extractedText);
 
         } catch (Exception e) {
 
@@ -127,9 +68,9 @@ public class ScamReportController {
             return new ScamAnalysisResponse(
                     true,
                     100,
-                    "Image Scan Error",
-                    List.of(
-                            "Failed to analyze image"
+                    "System Error",
+                    java.util.List.of(
+                            e.getMessage()
                     )
             );
         }
