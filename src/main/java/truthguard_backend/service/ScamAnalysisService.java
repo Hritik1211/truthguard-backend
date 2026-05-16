@@ -23,9 +23,13 @@ public class ScamAnalysisService {
     private final OkHttpClient client =
             new OkHttpClient();
 
+    private final ObjectMapper mapper =
+            new ObjectMapper();
+
     public ScamAnalysisResponse analyzeText(String text) {
 
         try {
+
             String prompt = """
 You are a scam detection AI.
 
@@ -37,7 +41,7 @@ Do NOT explain anything.
 Do NOT add markdown.
 Do NOT add extra text.
 
-Format:
+Return format:
 
 {
   "scam": true,
@@ -51,6 +55,7 @@ Format:
 
 Message:
 """ + text;
+
             String safePrompt = prompt
                     .replace("\"", "\\\"")
                     .replace("\n", "\\n");
@@ -64,7 +69,7 @@ Message:
       "content": "%s"
     }
   ],
-  "temperature": 0.2
+  "temperature": 0.1
 }
 """.formatted(safePrompt);
 
@@ -92,10 +97,8 @@ Message:
             String responseBody =
                     response.body().string();
 
+            System.out.println("FULL API RESPONSE:");
             System.out.println(responseBody);
-
-            ObjectMapper mapper =
-                    new ObjectMapper();
 
             JsonNode root =
                     mapper.readTree(responseBody);
@@ -115,24 +118,45 @@ Message:
                     .asText()
                     .trim();
 
+            System.out.println("AI TEXT:");
+            System.out.println(aiText);
+
             int start = aiText.indexOf("{");
             int end = aiText.lastIndexOf("}");
 
             if (start != -1 && end != -1) {
+
                 aiText = aiText.substring(start, end + 1);
             }
-            return mapper.readValue(
-                    aiText,
-                    ScamAnalysisResponse.class
-            );
+
+            System.out.println("CLEAN JSON:");
+            System.out.println(aiText);
+
+            ScamAnalysisResponse result =
+                    mapper.readValue(
+                            aiText,
+                            ScamAnalysisResponse.class
+                    );
+
+            return result;
 
         } catch (Exception e) {
 
             e.printStackTrace();
 
-            throw new RuntimeException(
-                    e.getMessage()
+            ScamAnalysisResponse errorResponse =
+                    new ScamAnalysisResponse();
+
+            errorResponse.setScam(true);
+            errorResponse.setRisk(100);
+            errorResponse.setCategory("System Error");
+            errorResponse.setReason(
+                    java.util.List.of(
+                            "AI response parsing failed"
+                    )
             );
+
+            return errorResponse;
         }
     }
 }
