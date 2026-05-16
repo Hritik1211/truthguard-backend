@@ -9,12 +9,11 @@ import truthguard_backend.service.OcrService;
 import truthguard_backend.service.ScamAnalysisService;
 
 import java.io.File;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {
-        "https://truthguard-ai-bay.vercel.app"
-})
+@CrossOrigin(origins = "*")
 public class ScamReportController {
 
     @Autowired
@@ -23,12 +22,59 @@ public class ScamReportController {
     @Autowired
     private ScamAnalysisService scamAnalysisService;
 
+    // EMAIL SCANNER
     @PostMapping("/scan-email")
-    public ScamAnalysisResponse scanEmail(@RequestBody String text) {
+    public ScamAnalysisResponse scanEmail(
+            @RequestBody String text
+    ) {
 
-        return scamAnalysisService.analyzeText(text);
+        try {
+
+            return scamAnalysisService
+                    .analyzeText(text);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            return new ScamAnalysisResponse(
+                    true,
+                    100,
+                    "Email Scan Error",
+                    List.of(
+                            "Failed to analyze email"
+                    )
+            );
+        }
     }
 
+    // URL SCANNER
+    @PostMapping("/scan-url")
+    public ScamAnalysisResponse scanUrl(
+            @RequestBody String url
+    ) {
+
+        try {
+
+            return scamAnalysisService
+                    .analyzeText(url);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            return new ScamAnalysisResponse(
+                    true,
+                    100,
+                    "URL Scan Error",
+                    List.of(
+                            "Failed to analyze URL"
+                    )
+            );
+        }
+    }
+
+    // IMAGE SCANNER
     @PostMapping("/scan-image")
     public ScamAnalysisResponse scanImage(
             @RequestParam("file") MultipartFile file
@@ -36,28 +82,55 @@ public class ScamReportController {
 
         try {
 
-            File convFile = File.createTempFile("upload", ".png");
+            File convFile =
+                    File.createTempFile(
+                            "upload",
+                            ".png"
+                    );
 
             file.transferTo(convFile);
 
             String extractedText =
                     ocrService.extractText(convFile);
 
-            if (extractedText == null
-                    || extractedText.isBlank()) {
+            System.out.println(
+                    "OCR TEXT: " + extractedText
+            );
 
-                throw new RuntimeException(
-                        "No text extracted from image"
+            if (
+                    extractedText == null ||
+                            extractedText.isBlank()
+            ) {
+
+                return new ScamAnalysisResponse(
+                        true,
+                        90,
+                        "No Text Found",
+                        List.of(
+                                "Could not detect readable text in image"
+                        )
                 );
             }
 
-            return scamAnalysisService
-                    .analyzeText(extractedText);
+            ScamAnalysisResponse result =
+                    scamAnalysisService
+                            .analyzeText(extractedText);
+
+            convFile.delete();
+
+            return result;
 
         } catch (Exception e) {
 
-            throw new RuntimeException(
-                    e.getMessage()
+            e.printStackTrace();
+
+            return new ScamAnalysisResponse(
+                    true,
+                    100,
+                    "Image Scan Error",
+                    List.of(
+                            "Failed to analyze image"
+                    )
             );
         }
     }
