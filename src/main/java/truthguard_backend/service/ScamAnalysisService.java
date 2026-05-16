@@ -26,11 +26,18 @@ public class ScamAnalysisService {
     public ScamAnalysisResponse analyzeText(String text) {
 
         try {
-
             String prompt = """
-Analyze this message for scam detection.
+You are a scam detection AI.
 
-Return ONLY valid JSON in this format:
+Analyze the given message.
+
+IMPORTANT:
+Return ONLY valid raw JSON.
+Do NOT explain anything.
+Do NOT add markdown.
+Do NOT add extra text.
+
+Format:
 
 {
   "scam": true,
@@ -44,7 +51,6 @@ Return ONLY valid JSON in this format:
 
 Message:
 """ + text;
-
             String safePrompt = prompt
                     .replace("\"", "\\\"")
                     .replace("\n", "\\n");
@@ -106,18 +112,15 @@ Message:
                     .get(0)
                     .get("message")
                     .get("content")
-                    .asText();
-
-            System.out.println(aiText);
+                    .asText()
+                    .trim();
 
             int start = aiText.indexOf("{");
             int end = aiText.lastIndexOf("}");
 
             if (start != -1 && end != -1) {
-
                 aiText = aiText.substring(start, end + 1);
             }
-
             return mapper.readValue(
                     aiText,
                     ScamAnalysisResponse.class
